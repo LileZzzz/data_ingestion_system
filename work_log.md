@@ -66,9 +66,40 @@
             - Figured it out: *count* (I call it *batch_size*) cannot be set over 2K - use 200 to be safe
             - Fixed the function - use *batch_size* for number of review per crawling, *total_count* for total number of reviews to fetch
         - Result [`chatgpt_reviews_recent_50k.csv`](./data/raw/chatgpt_reviews_recent_50k.csv)）
-            - Observed mixed languages, emojis, symbols in the reviews 
-- Structure the pipeline (Working on it)
-- Schema desing (Working on it)
+            - Observed mixed languages, emojis, symbols in the reviews
+
+## Jan 7 Week
+- Exploratory data anlysis:
+    - Basics:
+        - 50K reviews
+    - Rating distributions
+        - Heavily skewed positive: 87.1% are 4-5 stars
+        - Mean: 4.49/5.0 | Median: 5.0 
+        - Breakdown: 5(77.2%), 4(9.9%), 3(4.1%), 2(1.9%), 1(6.9%)
+    - Language mix
+        - 92.5% English
+        - 14.2% Reviews with emojis
+    - Text length
+        - Mean:            6.3 words
+        - Median:            2 words
+        - Min:               1 words
+        - Max:             117 words
+        - Text Distribution: 1 words: 14,888 (29.8%), 2 words: 10,690 (21.4%), 3 words:  5,548 (11.1%), 4 words:  3,474 (6.9%), 5 words:  2,619 (5.2%)
+    - Temporal patterns
+        - Earliest: 2025-12-19 03:57:31
+        - Latest:   2026-01-05 22:36:04
+        - Span:     17 days
+        - Mean:       2777.8 reviews/day
+        - Median:       2733 reviews/day
+        - Min:         2,333 reviews/day
+        - Max:         3,255 reviews/day
+    - Extent of missing or noisy fields
+        - Most are complete except that:
+            - replyContent/repliedAt: 100% missing
+            - reviewCreatedVersion: 6.7% missing
+
+- Structure the pipeline (Hold)
+- Schema design (Hold)
     
 
 [1]: https://play.google.com/store/apps/details?id=com.openai.chatgpt&hl=en&gl=us
