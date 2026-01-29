@@ -64,10 +64,10 @@ def fetch_reviews(
 
         else:
             print(f"2: Fetching {total_count} Reviews")
-            all_reviews = []
+            collected_reviews = []
             continuation_token = None
 
-            while len(all_reviews) < total_count:
+            while len(collected_reviews) < total_count:
                 try:
                     if continuation_token:
                         batch_reviews, continuation_token = reviews(
@@ -86,7 +86,7 @@ def fetch_reviews(
                             sort=Sort.NEWEST,
                             count=batch_size,
                         )
-                    all_reviews.extend(batch_reviews)
+                    collected_reviews.extend(batch_reviews)
 
                     if continuation_token is None:
                         print("No more reviews to fetch.")
@@ -96,7 +96,7 @@ def fetch_reviews(
                     break
 
         print("=" * 50)
-        return all_reviews
+        return collected_reviews
 
     except Exception as e:
         print(f"Error fetching reviews: {e}")
@@ -227,15 +227,27 @@ def save_product_info_to_csv(product_info, filename="data/raw/chatgpt_app_info.c
 
 
 def main():
-    app_info = get_chatgpt_app_info()
-    save_product_info_to_csv(app_info)
+    """Main execution function"""
+    try:
+        app_info = get_chatgpt_app_info()
+        if app_info:
+            save_product_info_to_csv(app_info)
+        else:
+            print("Warning: Failed to fetch app info")
 
-    sample_reviews = fetch_reviews(total_count=50000)
-    analyze_review_rating_distribution(sample_reviews)
-    analyze_review_content_length(sample_reviews)
-    analyze_review_date_distribution(sample_reviews)
-    save_reviews_to_csv(sample_reviews)
-    display_sample_reviews(sample_reviews, sample_size=3)
+        sample_reviews = fetch_reviews(total_count=50000)
+
+        if sample_reviews:
+            analyze_review_rating_distribution(sample_reviews)
+            analyze_review_content_length(sample_reviews)
+            analyze_review_date_distribution(sample_reviews)
+            save_reviews_to_csv(sample_reviews)
+            display_sample_reviews(sample_reviews, sample_size=3)
+        else:
+            print("Warning: No reviews fetched")
+    except Exception as e:
+        print(f"Script failed with error: {e}")
+        raise
 
 
 if __name__ == "__main__":

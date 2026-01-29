@@ -5,6 +5,7 @@ Author: Lile Zhang
 Date: January 2026
 """
 
+import re
 from collections import Counter
 from datetime import datetime
 
@@ -104,25 +105,31 @@ def analyze_text_length(df):
     print("3. TEXT LENGTH ANALYSIS")
     print("=" * 80)
 
-    # Calculate lengths
-    df["word_count"] = df["content"].fillna("").str.split().str.len()
+    df_analysis = df.copy()
+    df_analysis["word_count"] = df_analysis["content"].fillna("").str.split().str.len()
 
     print("\nWord Count Statistics:")
     print("-" * 80)
-    print(f"  Mean:       {df['word_count'].mean():>8.1f} words")
-    print(f"  Median:     {df['word_count'].median():>8.0f} words")
-    print(f"  Min:        {df['word_count'].min():>8.0f} words")
-    print(f"  Max:        {df['word_count'].max():>8,.0f} words")
+    print(f"  Mean:       {df_analysis['word_count'].mean():>8.1f} words")
+    print(f"  Median:     {df_analysis['word_count'].median():>8.0f} words")
+    print(f"  Min:        {df_analysis['word_count'].min():>8.0f} words")
+    print(f"  Max:        {df_analysis['word_count'].max():>8,.0f} words")
 
     # Length distribution
-    length_counts = df["word_count"].value_counts().sort_index()
+    length_counts = df_analysis["word_count"].value_counts().sort_index()
     print("\nWord Count Distribution (top 10):")
     print("-" * 80)
     for length, count in length_counts.head(10).items():
-        pct = (count / len(df)) * 100
+        pct = (count / len(df_analysis)) * 100
         print(f" {length:>4} words: {count:>6,} ({pct:>5.1f}%)")
 
-    return df[["word_count"]]
+    return {
+        "mean": df_analysis["word_count"].mean(),
+        "median": df_analysis["word_count"].median(),
+        "min": df_analysis["word_count"].min(),
+        "max": df_analysis["word_count"].max(),
+        "distribution": length_counts.to_dict(),
+    }
 
 
 def analyze_language_mix(df):
@@ -178,7 +185,6 @@ def analyze_language_mix(df):
             return False
         # Simple emoji detection
         emoji_pattern = r"[\U0001F600-\U0001F64F\U0001F300-\U0001F5FF\U0001F680-\U0001F6FF\U0001F1E0-\U0001F1FF]"
-        import re
 
         return bool(re.search(emoji_pattern, text))
 
@@ -200,26 +206,28 @@ def analyze_temporal_patterns(df):
     print("5. TEMPORAL PATTERNS ANALYSIS")
     print("=" * 80)
 
+    df_work = df.copy()
+
     # Convert to datetime
-    if "at" in df.columns:
-        df["review_date"] = pd.to_datetime(df["at"], errors="coerce")
-    elif "reviewed_at" in df.columns:
-        df["review_date"] = pd.to_datetime(df["reviewed_at"], errors="coerce")
+    if "at" in df_work.columns:
+        df_work["review_date"] = pd.to_datetime(df_work["at"], errors="coerce")
+    elif "reviewed_at" in df_work.columns:
+        df_work["review_date"] = pd.to_datetime(df_work["reviewed_at"], errors="coerce")
     else:
         print("\nNo timestamp column found")
-        return
+        return None
 
     # Remove invalid dates
-    valid_dates = df["review_date"].notna()
+    valid_dates = df_work["review_date"].notna()
     print(
-        f"\n✓ Valid timestamps: {valid_dates.sum():,} / {len(df):,} ({valid_dates.sum()/len(df)*100:.1f}%)"
+        f"\n✓ Valid timestamps: {valid_dates.sum():,} / {len(df_work):,} ({valid_dates.sum()/len(df_work)*100:.1f}%)"
     )
 
-    df_temporal = df[valid_dates].copy()
+    df_temporal = df_work[valid_dates].copy()
 
     if len(df_temporal) == 0:
         print("\nNo valid timestamps to analyze")
-        return
+        return None
 
     # Date range
     print(f"\nDate Range:")
