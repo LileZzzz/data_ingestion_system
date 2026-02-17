@@ -90,6 +90,15 @@ Examples:
         default=None,
         help=f"Path to SQLite database (default: {config.DEFAULT_CONFIG['db_path']})",
     )
+    parser.add_argument(
+        "--log-file",
+        type=str,
+        default=None,
+        help=(
+            "Path to save structured logs "
+            f"(default: {config.DEFAULT_CONFIG.get('log_file', 'disabled')})"
+        ),
+    )
 
     # Pipeline options
     parser.add_argument(
@@ -124,6 +133,7 @@ def run_pipeline(args):
         lang=args.lang,
         country=args.country,
         batch_size=args.batch_size,
+        log_file=args.log_file,
     )
 
     print("=" * 80)
@@ -134,6 +144,7 @@ def run_pipeline(args):
     print(f"Language:      {pipeline.scraper.lang}")
     print(f"Country:       {pipeline.scraper.country}")
     print(f"Batch Size:    {pipeline.scraper.batch_size}")
+    print(f"Log File:      {pipeline.get_log_file_path() or 'Disabled'}")
     print("=" * 80)
 
     # Run based on mode
